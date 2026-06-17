@@ -143,6 +143,46 @@ document.addEventListener('DOMContentLoaded', () => {
     fadeEls.forEach(el => observer.observe(el));
   }
 
+  // --- Instagram Feed ---
+  const instaGrid = document.getElementById('instaGrid');
+  if (instaGrid) {
+    const IG_TOKEN = 'EAAO5gL9WMIYBRjLZC5jtfEFmy7Vv8MxYQMxgjiSEogQoJwZBU7Uoq7dKSvH9c8rN4L0ojKvd7c4taklyL4rO9EsFjQpzj6zWRKYUYlvg3mRga5meuOOZCJpQfLbdb21Wp9YsFjymC0OF6KUn0R3K7RmvZAuNFxZAfqLr7dn8kjmZCEEus74mnZAHTCFnudqjpn7AS4aTYkZD';
+    const IG_ID   = '17841403523019370';
+    const IG_URL  = `https://graph.facebook.com/v18.0/${IG_ID}/media?fields=id,caption,media_type,media_url,thumbnail_url,permalink&limit=6&access_token=${IG_TOKEN}`;
+
+    const typeIcon = { IMAGE: '', VIDEO: '▶', CAROUSEL_ALBUM: '⊞' };
+
+    fetch(IG_URL)
+      .then(r => r.json())
+      .then(data => {
+        if (!data.data) return;
+        instaGrid.innerHTML = '';
+        data.data.forEach(post => {
+          const imgSrc = post.media_type === 'VIDEO' ? post.thumbnail_url : post.media_url;
+          const caption = (post.caption || '').replace(/#\S+/g, '').trim().slice(0, 80);
+          const icon = typeIcon[post.media_type] || '';
+          const el = document.createElement('a');
+          el.href = post.permalink;
+          el.target = '_blank';
+          el.rel = 'noopener';
+          el.className = 'insta-item';
+          el.innerHTML = `
+            <img src="${imgSrc}" alt="Instagram post" loading="lazy">
+            ${icon ? `<span class="insta-type-badge">${icon}</span>` : ''}
+            <div class="insta-item-overlay">
+              <span class="insta-icon">♡</span>
+              ${caption ? `<p class="insta-caption">${caption}</p>` : ''}
+            </div>`;
+          instaGrid.appendChild(el);
+        });
+      })
+      .catch(() => {
+        instaGrid.innerHTML = `<p style="grid-column:1/-1;text-align:center;color:#aaa;font-size:0.8rem;padding:2rem;">
+          Could not load Instagram posts. <a href="https://www.instagram.com/namaste_beauty_studio/" target="_blank">View on Instagram</a>
+        </p>`;
+      });
+  }
+
   // --- Contact form submission ---
   const form = document.querySelector('.contact-form-el');
   if (form) {
