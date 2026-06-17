@@ -948,96 +948,137 @@ footer {
   letter-spacing: 0.05em;
 }
 
-/* --- Instagram Feed --- */
+/* --- Instagram Behold-style Feed --- */
 .instagram-section { background: #fff; }
-.insta-grid {
-  display: grid;
-  grid-template-columns: repeat(6, 1fr);
-  gap: 6px;
-}
-.insta-item {
-  position: relative;
-  aspect-ratio: 1;
+
+.insta-behold-wrap { width: 100%; }
+
+.insta-behold {
+  display: flex;
+  gap: 10px;
+  height: 420px;
+  align-items: stretch;
   overflow: hidden;
-  cursor: pointer;
-  background: #f0f0f0;
 }
-.insta-item img {
+
+.insta-behold-item {
+  flex-shrink: 0;
+  height: 100%;
+  overflow: hidden;
+  position: relative;
+  cursor: pointer;
+  transition: width 0.55s cubic-bezier(0.4, 0, 0.2, 1),
+              border-radius 0.55s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.insta-behold-item img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.5s ease;
-  filter: grayscale(15%);
+  transition: transform 0.5s ease, filter 0.4s;
+  filter: grayscale(10%);
+  display: block;
 }
-.insta-item:hover img {
-  transform: scale(1.07);
+.insta-behold-item:hover img {
+  transform: scale(1.04);
   filter: grayscale(0%);
 }
-.insta-item-overlay {
+
+/* Overlay on first (featured) card */
+.insta-behold-item.ib-featured .ib-overlay {
   position: absolute;
   inset: 0;
-  background: rgba(0,0,0,0);
+  background: linear-gradient(to top, rgba(0,0,0,0.55) 0%, transparent 50%);
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  transition: background 0.35s;
-  padding: 1rem;
+  align-items: flex-end;
+  padding: 1.5rem;
+  transition: background 0.4s;
 }
-.insta-item:hover .insta-item-overlay {
-  background: rgba(0,0,0,0.5);
+.insta-behold-item.ib-featured:hover .ib-overlay {
+  background: linear-gradient(to top, rgba(0,0,0,0.65) 0%, rgba(0,0,0,0.1) 60%, transparent 100%);
 }
-.insta-icon {
-  color: #fff;
-  font-size: 1.4rem;
-  opacity: 0;
-  transform: translateY(8px);
-  transition: opacity 0.3s, transform 0.3s;
-}
-.insta-caption {
+.ib-caption {
   color: rgba(255,255,255,0.9);
-  font-size: 0.65rem;
-  letter-spacing: 0.05em;
-  text-align: center;
-  line-height: 1.5;
-  opacity: 0;
-  transform: translateY(8px);
-  transition: opacity 0.3s 0.05s, transform 0.3s 0.05s;
+  font-size: 0.75rem;
+  line-height: 1.6;
   display: -webkit-box;
-  -webkit-line-clamp: 3;
+  -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 0.3s, transform 0.3s;
 }
-.insta-type-badge {
-  position: absolute;
-  top: 0.6rem;
-  right: 0.6rem;
-  color: #fff;
-  font-size: 0.75rem;
-  opacity: 0.85;
-  text-shadow: 0 1px 3px rgba(0,0,0,0.5);
-}
-.insta-item:hover .insta-icon,
-.insta-item:hover .insta-caption {
+.insta-behold-item.ib-featured:hover .ib-caption {
   opacity: 1;
   transform: translateY(0);
 }
-.insta-skeleton {
-  aspect-ratio: 1;
-  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+
+/* Type badge for video/carousel */
+.ib-badge {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  color: #fff;
+  font-size: 0.8rem;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.6);
+  pointer-events: none;
+}
+
+/* Skeleton shimmer */
+.ib-skeleton {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e5e5e5 50%, #f0f0f0 75%);
   background-size: 200% 100%;
-  animation: shimmer 1.5s infinite;
+  animation: shimmer 1.4s infinite;
 }
 @keyframes shimmer {
-  0% { background-position: 200% 0; }
+  0%   { background-position: 200% 0; }
   100% { background-position: -200% 0; }
 }
-@media (max-width: 1024px) {
-  .insta-grid { grid-template-columns: repeat(3, 1fr); }
+
+/* Bottom bar */
+.insta-behold-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 1.2rem;
 }
-@media (max-width: 480px) {
-  .insta-grid { grid-template-columns: repeat(2, 1fr); }
+.insta-behold-handle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  color: #555;
+  transition: color 0.25s;
+}
+.insta-behold-handle:hover { color: #111; }
+.insta-behold-nav {
+  display: flex;
+  gap: 0.6rem;
+}
+.insta-prev, .insta-next {
+  background: none;
+  border: 1px solid #ddd;
+  color: #555;
+  width: 38px;
+  height: 38px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: border-color 0.25s, color 0.25s, background 0.25s;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.insta-prev:hover, .insta-next:hover {
+  border-color: #111;
+  color: #111;
+  background: #f5f5f5;
+}
+
+@media (max-width: 768px) {
+  .insta-behold { height: 280px; }
 }
 
 /* --- Fade-in animations --- */

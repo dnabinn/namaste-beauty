@@ -143,42 +143,75 @@ document.addEventListener('DOMContentLoaded', () => {
     fadeEls.forEach(el => observer.observe(el));
   }
 
-  // --- Instagram Feed ---
-  const instaGrid = document.getElementById('instaGrid');
-  if (instaGrid) {
+  // --- Instagram Behold-style Feed ---
+  const ibWrap = document.getElementById('instaBehold');
+  if (ibWrap) {
     const IG_TOKEN = 'EAAO5gL9WMIYBRjLZC5jtfEFmy7Vv8MxYQMxgjiSEogQoJwZBU7Uoq7dKSvH9c8rN4L0ojKvd7c4taklyL4rO9EsFjQpzj6zWRKYUYlvg3mRga5meuOOZCJpQfLbdb21Wp9YsFjymC0OF6KUn0R3K7RmvZAuNFxZAfqLr7dn8kjmZCEEus74mnZAHTCFnudqjpn7AS4aTYkZD';
     const IG_ID   = '17841403523019370';
-    const IG_URL  = `https://graph.facebook.com/v18.0/${IG_ID}/media?fields=id,caption,media_type,media_url,thumbnail_url,permalink&limit=6&access_token=${IG_TOKEN}`;
+    const IG_URL  = `https://graph.facebook.com/v18.0/${IG_ID}/media?fields=id,caption,media_type,media_url,thumbnail_url,permalink&limit=9&access_token=${IG_TOKEN}`;
 
-    const typeIcon = { IMAGE: '', VIDEO: '▶', CAROUSEL_ALBUM: '⊞' };
+    // Width + radius per slot position (0 = featured/widest)
+    const SLOTS = [
+      { w: 380, r: 20 },
+      { w: 240, r: 20 },
+      { w: 160, r: 24 },
+      { w: 110, r: 55 },
+      { w:  80, r: 70 },
+      { w:  60, r: 70 },
+    ];
+
+    const typeIcon = { VIDEO: '▶', CAROUSEL_ALBUM: '⊞' };
+    let posts = [];
+    let ibStart = 0;
+
+    const buildCard = (post, slotIndex) => {
+      const { w, r } = SLOTS[slotIndex];
+      const isFeatured = slotIndex === 0;
+      const imgSrc = post.media_type === 'VIDEO' ? post.thumbnail_url : post.media_url;
+      const caption = (post.caption || '').replace(/#\S+/g, '').trim().slice(0, 100);
+      const badge = typeIcon[post.media_type] || '';
+
+      const a = document.createElement('a');
+      a.href = post.permalink;
+      a.target = '_blank';
+      a.rel = 'noopener';
+      a.className = 'insta-behold-item' + (isFeatured ? ' ib-featured' : '');
+      a.style.cssText = `width:${w}px; border-radius:${r}px;`;
+      a.innerHTML = `
+        <img src="${imgSrc}" alt="Instagram post" loading="lazy">
+        ${badge ? `<span class="ib-badge">${badge}</span>` : ''}
+        ${isFeatured ? `<div class="ib-overlay"><p class="ib-caption">${caption}</p></div>` : ''}
+      `;
+      return a;
+    };
+
+    const render = () => {
+      ibWrap.innerHTML = '';
+      for (let i = 0; i < SLOTS.length; i++) {
+        const post = posts[(ibStart + i) % posts.length];
+        ibWrap.appendChild(buildCard(post, i));
+      }
+    };
 
     fetch(IG_URL)
       .then(r => r.json())
       .then(data => {
-        if (!data.data) return;
-        instaGrid.innerHTML = '';
-        data.data.forEach(post => {
-          const imgSrc = post.media_type === 'VIDEO' ? post.thumbnail_url : post.media_url;
-          const caption = (post.caption || '').replace(/#\S+/g, '').trim().slice(0, 80);
-          const icon = typeIcon[post.media_type] || '';
-          const el = document.createElement('a');
-          el.href = post.permalink;
-          el.target = '_blank';
-          el.rel = 'noopener';
-          el.className = 'insta-item';
-          el.innerHTML = `
-            <img src="${imgSrc}" alt="Instagram post" loading="lazy">
-            ${icon ? `<span class="insta-type-badge">${icon}</span>` : ''}
-            <div class="insta-item-overlay">
-              <span class="insta-icon">♡</span>
-              ${caption ? `<p class="insta-caption">${caption}</p>` : ''}
-            </div>`;
-          instaGrid.appendChild(el);
+        if (!data.data || !data.data.length) return;
+        posts = data.data;
+        render();
+
+        document.querySelector('.insta-next')?.addEventListener('click', () => {
+          ibStart = (ibStart + 1) % posts.length;
+          render();
+        });
+        document.querySelector('.insta-prev')?.addEventListener('click', () => {
+          ibStart = (ibStart - 1 + posts.length) % posts.length;
+          render();
         });
       })
       .catch(() => {
-        instaGrid.innerHTML = `<p style="grid-column:1/-1;text-align:center;color:#aaa;font-size:0.8rem;padding:2rem;">
-          Could not load Instagram posts. <a href="https://www.instagram.com/namaste_beauty_studio/" target="_blank">View on Instagram</a>
+        ibWrap.innerHTML = `<p style="color:#aaa;font-size:0.8rem;padding:2rem 0;">
+          Could not load Instagram posts. <a href="https://www.instagram.com/namaste_beauty_studio/" target="_blank">View on Instagram →</a>
         </p>`;
       });
   }
