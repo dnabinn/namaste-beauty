@@ -53,19 +53,41 @@
     </div>
   </div>
 
-  <!-- ===== HERO ===== -->
-  <section class="hero">
-    <img
-      src="assets/cover%201.webp"
-      alt="Namaste Beauty Studio"
-      class="hero-img"
-    >
+  <!-- ===== HERO SLIDER ===== -->
+  <section class="hero hero-slider" id="heroSlider">
+
+    <!-- Slides -->
+    <div class="hero-slides">
+      <div class="hero-slide active">
+        <img src="assets/cover%201.webp" alt="Namaste Beauty Studio">
+      </div>
+      <div class="hero-slide">
+        <img src="assets/cover%202.webp" alt="Namaste Beauty Studio">
+      </div>
+      <div class="hero-slide">
+        <img src="assets/cover%203.webp" alt="Namaste Beauty Studio">
+      </div>
+    </div>
+
+    <!-- Overlay content -->
     <div class="hero-overlay">
       <p class="hero-eyebrow">Lisboa, Portugal</p>
       <h1 class="hero-title">Beauty is<br>a State of Mind</h1>
       <p class="hero-subtitle">Hair · Nails · Lash · Facial · Waxing · Threading</p>
       <a href="https://wa.me/351920244481" target="_blank" class="btn btn-white">Book Your Appointment</a>
     </div>
+
+    <!-- Arrows -->
+    <button class="hero-arrow hero-prev" aria-label="Previous">&#8592;</button>
+    <button class="hero-arrow hero-next" aria-label="Next">&#8594;</button>
+
+    <!-- Dots -->
+    <div class="hero-dots">
+      <button class="hero-dot active" aria-label="Slide 1"></button>
+      <button class="hero-dot" aria-label="Slide 2"></button>
+      <button class="hero-dot" aria-label="Slide 3"></button>
+    </div>
+
     <div class="hero-scroll">Scroll</div>
   </section>
 

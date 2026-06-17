@@ -4,6 +4,53 @@
 
 document.addEventListener('DOMContentLoaded', () => {
 
+  // --- Hero Slider ---
+  const heroSlides = document.querySelectorAll('.hero-slide');
+  const heroDots = document.querySelectorAll('.hero-dot');
+  const heroPrev = document.querySelector('.hero-prev');
+  const heroNext = document.querySelector('.hero-next');
+
+  if (heroSlides.length) {
+    let heroCurrent = 0;
+    let heroTimer;
+
+    const heroGoTo = (index) => {
+      heroSlides[heroCurrent].classList.remove('active');
+      heroDots[heroCurrent].classList.remove('active');
+      heroCurrent = (index + heroSlides.length) % heroSlides.length;
+      heroSlides[heroCurrent].classList.add('active');
+      heroDots[heroCurrent].classList.add('active');
+    };
+
+    const startHeroAuto = () => {
+      heroTimer = setInterval(() => heroGoTo(heroCurrent + 1), 5000);
+    };
+    const resetHeroAuto = () => { clearInterval(heroTimer); startHeroAuto(); };
+
+    if (heroPrev) heroPrev.addEventListener('click', () => { heroGoTo(heroCurrent - 1); resetHeroAuto(); });
+    if (heroNext) heroNext.addEventListener('click', () => { heroGoTo(heroCurrent + 1); resetHeroAuto(); });
+    heroDots.forEach((d, i) => d.addEventListener('click', () => { heroGoTo(i); resetHeroAuto(); }));
+
+    // Pause on hover
+    const heroEl = document.getElementById('heroSlider');
+    if (heroEl) {
+      heroEl.addEventListener('mouseenter', () => clearInterval(heroTimer));
+      heroEl.addEventListener('mouseleave', startHeroAuto);
+    }
+
+    // Touch swipe
+    let heroStartX = 0;
+    if (heroEl) {
+      heroEl.addEventListener('touchstart', e => { heroStartX = e.touches[0].clientX; });
+      heroEl.addEventListener('touchend', e => {
+        const diff = heroStartX - e.changedTouches[0].clientX;
+        if (Math.abs(diff) > 50) { heroGoTo(diff > 0 ? heroCurrent + 1 : heroCurrent - 1); resetHeroAuto(); }
+      });
+    }
+
+    startHeroAuto();
+  }
+
   // --- Nav scroll effect ---
   const nav = document.querySelector('.nav');
   if (nav) {
